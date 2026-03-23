@@ -1,0 +1,7 @@
+websites:
+  control-plane:
+    root: /var/www/control-plane
+    index: control-index.html
+  worker1:
+    root: /var/www/worker1
+    index: worker1-index.html
