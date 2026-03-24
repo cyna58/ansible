@@ -4,19 +4,19 @@
   become: yes
   tasks:
     - name: Install nginx
-      apt:
+      ansible.builtin.apt:
         name: nginx
         state: latest
         update_cache: yes
     
     - name: Add user to sudo group
-      user:
+      ansible.builtin.user:
         name: cyna
         groups: sudo
         state: present
 
     - name: Remove default nginx configuration
-      file:
+      ansible.builtin.file:
         path: /etc/nginx/sites-enabled/default
         state: absent
 
@@ -25,7 +25,7 @@
   become: yes
   tasks:
     - name: Create web root directories
-      file:
+      ansible.builtin.file:
         path: "{{ websites[inventory_hostname].root }}"
         state: directory
         owner: www-data
@@ -33,16 +33,15 @@
         mode: '0755'
 
     - name: Deploy index.html files
-      copy:
-        src: "/home/cyna/ansible/{{ websites[inventory_hostname].index }}"
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/{{ websites[inventory_hostname].index }}"
         dest: "{{ websites[inventory_hostname].root }}/index.html"
         owner: www-data
         group: www-data
         mode: '0644'
-      loop: "{{ websites.values() }}"
 
     - name: Deploy nginx site-config from template
-      template:
+      ansible.builtin.template:
         src: site-config.j2
         dest: /etc/nginx/sites-available/site-config
       vars:
@@ -50,7 +49,7 @@
       notify: Validate nginx config
 
     - name: Enable nginx site
-      file:
+      ansible.builtin.file:
         src: /etc/nginx/sites-available/site-config
         dest: /etc/nginx/sites-enabled/site-config
         state: link
@@ -76,7 +75,7 @@
       notify: Validate nginx config
 
     - name: Enable loadbalancer site
-      file:
+      ansible.builtin.file:
         src: /etc/nginx/sites-available/loadbalancer
         dest: /etc/nginx/sites-enabled/loadbalancer
         state: link
